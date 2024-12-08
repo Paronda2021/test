@@ -166,12 +166,13 @@ try {
           <h3>${data.postTitle}</h3>
           <p>${data.postContent}</p>
           <button class="delete-btn" data-post-id="${postId}">X</button>
+          <button class="expand-btn" data-post-id="${postId}">&#9660;</button>
         </div>
       `;
     });
   }
 
-  // Event delegation for delete button click
+  // Event delegation for delete and expand button click
   container.addEventListener("click", async (event) => {
     if (event.target && event.target.classList.contains("delete-btn")) {
       const postId = event.target.getAttribute("data-post-id");
@@ -196,6 +197,20 @@ try {
         } catch (error) {
           console.error("Error deleting post:", error); // Log errors if the deletion fails
         }
+      }
+    } else if (event.target && event.target.classList.contains("expand-btn")) {
+      const postId = event.target.getAttribute("data-post-id");
+
+      const postElement = document.getElementById(`post-${postId}`);
+      const postContent = postElement.querySelector("p");
+      const expandBtn = postElement.querySelector(".expand-btn");
+
+      postElement.classList.toggle("expanded");
+
+      if (postElement.classList.contains("expanded")) {
+        expandBtn.innerHTML = "&#9650;"; // Change to up arrow
+      } else {
+        expandBtn.innerHTML = "&#9660;"; // Change to down arrow
       }
     }
   });
