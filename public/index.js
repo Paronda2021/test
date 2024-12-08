@@ -1,8 +1,8 @@
-console.log(window.location.pathname);
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAvYRzyCrazIHj2-KHZ8UXuXfP2tVPIIZk",
   authDomain: "practicegeneral-ab18c.firebaseapp.com",
@@ -14,98 +14,85 @@ const firebaseConfig = {
   measurementId: "G-1DMFZKG7WM"
 };
 
-
-let path = window.location.pathname; // Get the full pathname
-console.log(path);
-  if(!(path == '/' || path =='/homepage.html')){
-    path = path.split('/')[2].replace('.html', ''); // Extract the category
-    console.log(path);
-  }
-  console.log("HELLO", path);
-
-  console.log("DSAOPDKASOPDKSA", path);
-
-//INADD KO
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Get the current category path from the URL
+let path = window.location.pathname; // Get the full pathname
+console.log(path);
+if (!(path == '/' || path == '/homepage.html')) {
+  path = path.split('/')[2].replace('.html', ''); // Extract the category
+  console.log(path);
+}
 
-try {
+console.log("Current Category Path:", path);
 
 // Signup Handler
 const signupForm = document.getElementById('signup-form');
 if (signupForm) {
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('pass').value;
-        const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('pass').value;
+    const username = document.getElementById('username').value;
 
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-            // Save user details in Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                username: username,
-                email: email,
-                createdAt: new Date().toISOString()
-            });
+      // Save user details in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        username: username,
+        email: email,
+        createdAt: new Date().toISOString()
+      });
 
-            alert(`Account created successfully for ${username}`);
-            window.location.href = "login.html"; // Redirect to login page
-        } catch (error) {
-            alert(`Signup failed: ${error.message}`);
-        }
-    });
+      alert(`Account created successfully for ${username}`);
+      window.location.href = "login.html"; // Redirect to login page
+    } catch (error) {
+      alert(`Signup failed: ${error.message}`);
+    }
+  });
 }
 
 // Login Handler
 const loginForm = document.getElementById('login');
 if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('pass').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('pass').value;
 
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-            // Retrieve user details from Firestore
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                alert(`Welcome back, ${userData.username}!`);
-            } else {
-                alert("Welcome back!");
-            }
-            window.location.href = "homepage.html"; // Redirect to homepage
-        } catch (error) {
-            alert(`Login failed: ${error.message}`);
-        }
-    });
+      // Retrieve user details from Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        alert(`Welcome back, ${userData.username}!`);
+      } else {
+        alert("Welcome back!");
+      }
+      window.location.href = "homepage.html"; // Redirect to homepage
+    } catch (error) {
+      alert(`Login failed: ${error.message}`);
+    }
+  });
 }
 
-
-  } catch (err) {
-    console.error(err);
-  }
-
-    //addposts
-
+// Add Post Form Rendering
 try {
   const dynamicContainer = document.getElementById('dynamic-container');
-
   if (!dynamicContainer) {
     throw new Error("Dynamic container not found!");
   }
 
-  // Define the form HTML dynamically
   const formHTML = `
     <div class="add-post-container">
       <form id="addPost">
@@ -116,135 +103,115 @@ try {
     </div>
   `;
 
-  // Insert the form into the container
   dynamicContainer.innerHTML = formHTML;
 } catch (err) {
   console.error("Error rendering the form:", err);
 }
-//end
 
-try{
+// Add Post to Firestore
+try {
   const addPost = document.getElementById('addPost');
-
-    addPost.addEventListener('submit', async (e)=>{
+  addPost.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const postTitle = document.getElementById('post-title').value;
     const postContent = document.getElementById('post-content').value;
-    //DITO MAG AADD KA NA SA FIRESTORE
 
     const postsCollectionRef = collection(db, "Categories", path, "posts");
-    const docRef = doc(postsCollectionRef); // Firestore will generate
+    const docRef = doc(postsCollectionRef);
 
     const data = {
       postTitle: postTitle,
       postContent: postContent,
       createdAt: new Date(),
-      // postAuthor:
-    }
+    };
     await setDoc(docRef, data);
 
-        alert("Document successfully written with ID:", docRef.id);
-        window.location.href=`${path}.html`;
-    })
-}catch(err){
-    console.log("Error in adding post");
+    alert("Document successfully written with ID:", docRef.id);
+    window.location.href = `${path}.html`;
+  });
+} catch (err) {
+  console.log("Error in adding post");
 }
 
-    //HANGGANG DITO INEDIT KO
-
-//getting the data
-
+// Fetch Posts from Firestore and Add Delete Button
 try {
   const container = document.getElementById('postbox-container');
-
-  // Debug: Check if container exists
 
   if (!container) {
     throw new Error("Container element not found!");
   }
-  console.log('Categories', path, "posts");
 
-  const postsCollectionRef = collection(db, 'Categories', path, "posts");
+  console.log('Fetching posts for category:', path, "posts");
+
+  const postsCollectionRef = collection(db, 'Categories', path, 'posts');
   
-  try {
-    // Fetch all documents from the 'posts' collection
-    const querySnapshot = await getDocs(postsCollectionRef);
-    console.log('Fetched documents:', querySnapshot.size);
-  
-    if (querySnapshot.empty) {
-      console.log("No posts found.");
-      container.innerHTML += `<h2>No post to show here</h2>`;
-    } else {
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const deleteButtonId = `delete-${docSnap.id}`;
-  
-        // Add the post's HTML with the delete button
-        container.innerHTML += `
-          <div class="postbox" id="post-${docSnap.id}">
-            <h3>${data.postTitle}</h3>
-            <p>${data.postContent}</p>
-            <button id="${deleteButtonId}" class="delete-btn" style="position: absolute; top: 10px; right: 10px;">Delete</button>
-          </div>
-        `;
-  
-        // Add event listener for the delete button
-        const deleteButton = document.getElementById(deleteButtonId);
-        deleteButton.addEventListener("click", async () => {
-          if (confirm("Are you sure you want to delete this post?")) {
-            try {
-              // Reference to the specific document
-              const postRef = doc(db, "posts", docSnap.id);
-  
-              // Delete the document from Firestore
-              await deleteDoc(postRef);
-  
-              // Remove the post from the DOM
-              const postElement = document.getElementById(`post-${docSnap.id}`);
-              postElement.remove();
-              console.log(`Post ${docSnap.id} deleted successfully.`);
-            } catch (error) {
-              console.error("Error deleting post:", error);
-            }
+  // Fetch all documents from the 'posts' collection
+  const querySnapshot = await getDocs(postsCollectionRef);
+  console.log('Fetched documents:', querySnapshot.size);
+
+  if (querySnapshot.empty) {
+    console.log("No posts found.");
+    container.innerHTML += `<h2>No post to show here</h2>`;
+  } else {
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const deleteButtonId = `delete-${docSnap.id}`;
+
+      // Add the post's HTML with the delete button
+      container.innerHTML += `
+        <div class="postbox" id="post-${docSnap.id}">
+          <h3>${data.postTitle}</h3>
+          <p>${data.postContent}</p>
+          <button id="${deleteButtonId}" class="delete-btn" style="position: absolute; top: 10px; right: 10px;">Delete</button>
+        </div>
+      `;
+
+      // Add event listener for the delete button
+      const deleteButton = document.getElementById(deleteButtonId);
+      deleteButton.addEventListener("click", async () => {
+        if (confirm("Are you sure you want to delete this post?")) {
+          try {
+            // Reference to the specific document in the category path
+            const postRef = doc(db, "Categories", path, "posts", docSnap.id);
+
+            // Delete the document from Firestore
+            await deleteDoc(postRef);
+
+            // Remove the post from the DOM
+            const postElement = document.getElementById(`post-${docSnap.id}`);
+            postElement.remove();
+            console.log(`Post ${docSnap.id} deleted successfully.`);
+          } catch (error) {
+            console.error("Error deleting post:", error);
           }
-        });
+        }
       });
-    }
-  } catch (error) {
-    console.error("Error fetching posts:", error);
+    });
   }
-
-
-} catch (err) {
-  console.error("ERROR IN POSTING:", err);
+} catch (error) {
+  console.error("Error fetching posts:", error);
 }
 
-
-//post Categories
-try{
+// Fetch Categories for Homepage
+try {
   const categoriesContainer = document.getElementById('categories');
-
   const docRef = collection(db, 'Categories');
 
   const querySnapshot = await getDocs(docRef);
 
-  querySnapshot.forEach(e => {
-    console.log("DSADASDSA", e.data());
+  querySnapshot.forEach((e) => {
     const data = e.data();
     categoriesContainer.innerHTML += `
-    <a style="text-decoration: none;"href='Categories/${data.subTitle}.html'>
-    <div class='container_home'>
-        <h3>${data.subTitle} </h3>
-    </div>
-    </a>
-  `;
-
+      <a style="text-decoration: none;" href='Categories/${data.subTitle}.html'>
+        <div class='container_home'>
+          <h3>${data.subTitle}</h3>
+        </div>
+      </a>
+    `;
   });
-
-
-}catch(err){
-  console.log("Errror in categories: ", err);
+} catch (err) {
+  console.log("Error in categories:", err);
 }
-console.log("HIIi");
-console.log("HIIi");
+
+console.log("Finished loading scripts.");
