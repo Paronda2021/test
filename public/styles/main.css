@@ -9,6 +9,7 @@
     flex-direction: column;
 }
 .postbox {
+    position: relative;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -340,4 +341,5 @@ input[type="submit"]:hover {
     cursor: pointer;
     padding: 5px;
     z-index: 10;
+    border-radius: 50%;
   }

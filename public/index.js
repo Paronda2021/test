@@ -156,14 +156,15 @@ try {
   } else {
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
-      const deleteButtonId = `delete-${docSnap.id}`;
+      const postId = docSnap.id;
+      const deleteButtonId = `delete-${postId}`;
 
       // Add the post's HTML with the delete button
       container.innerHTML += `
-        <div class="postbox" id="post-${docSnap.id}">
+        <div class="postbox" id="post-${postId}">
           <h3>${data.postTitle}</h3>
           <p>${data.postContent}</p>
-          <button id="${deleteButtonId}" class="delete-btn" style="position: absolute; top: 10px; right: 10px;">Delete</button>
+          <button id="${deleteButtonId}" class="delete-btn">X</button>
         </div>
       `;
 
@@ -173,15 +174,15 @@ try {
         if (confirm("Are you sure you want to delete this post?")) {
           try {
             // Reference to the specific document in the category path
-            const postRef = doc(db, "Categories", path, "posts", docSnap.id);
+            const postRef = doc(db, "Categories", path, "posts", postId);
 
             // Delete the document from Firestore
             await deleteDoc(postRef);
 
             // Remove the post from the DOM
-            const postElement = document.getElementById(`post-${docSnap.id}`);
+            const postElement = document.getElementById(`post-${postId}`);
             postElement.remove();
-            console.log(`Post ${docSnap.id} deleted successfully.`);
+            console.log(`Post ${postId} deleted successfully.`);
           } catch (error) {
             console.error("Error deleting post:", error);
           }
