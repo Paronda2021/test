@@ -43,6 +43,7 @@ body {
     height: 100vh;
     margin: 0;
     transition: opacity 0.5s;
+    background-attachment: fixed;
 }
 
 h4{
