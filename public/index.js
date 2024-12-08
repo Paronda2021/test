@@ -135,70 +135,7 @@ try {
 }
 
 // Fetch Posts from Firestore and Add Delete Button
-try {
-  const container = document.getElementById('postbox-container');
-
-  if (!container) {
-    throw new Error("Container element not found!");
-  }
-
-  console.log('Fetching posts for category:', path, "posts");
-
-  const postsCollectionRef = collection(db, 'Categories', path, 'posts');
-  
-  // Fetch all documents from the 'posts' collection
-  const querySnapshot = await getDocs(postsCollectionRef);
-  console.log('Fetched documents:', querySnapshot.size);
-
-  if (querySnapshot.empty) {
-    console.log("No posts found.");
-    container.innerHTML += `<h2>No post to show here</h2>`;
-  } else {
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const postId = docSnap.id;
-      const deleteButtonId = `delete-${postId}`;
-
-      // Add the post's HTML with the delete button
-      container.innerHTML += `
-        <div class="postbox" id="post-${postId}">
-          <h3>${data.postTitle}</h3>
-          <p>${data.postContent}</p>
-          <button id="${deleteButtonId}" class="delete-btn">X</button>
-        </div>
-      `;
-
-      console.log(`Created delete button with ID: ${deleteButtonId}`);
-
-      // Add event listener for the delete button
-      const deleteButton = document.getElementById(deleteButtonId);
-      deleteButton.addEventListener("click", async () => {
-        if (confirm("Are you sure you want to delete this post?")) {
-          console.log(`Deleting post with ID: ${postId}`);
-          try {
-            // Reference to the specific document in the category path
-            const postRef = doc(db, "Categories", path, "posts", postId);
-            console.log("Deleting document reference:", postRef.path);
-
-            // Delete the document from Firestore
-            await deleteDoc(postRef);
-            console.log(`Post ${postId} deleted from Firestore`);
-
-            // Remove the post from the DOM
-            const postElement = document.getElementById(`post-${postId}`);
-            postElement.remove();
-            console.log(`Post ${postId} deleted from DOM`);
-          } catch (error) {
-            console.error("Error deleting post:", error);
-          }
-        }
-      });
-    });
-  }
-} catch (error) {
-  console.error("Error fetching posts:", error);
-}
-
+1
 
 // Fetch Categories for Homepage
 try {
