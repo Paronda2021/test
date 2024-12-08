@@ -152,7 +152,7 @@ try {
 
   if (querySnapshot.empty) {
     console.log("No posts found.");
-    container.innerHTML += `<h2>No post to show here</h2>`;
+    container.innerHTML += `<h2 style="color: white;">No post to show here</h2>`;
   } else {
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
