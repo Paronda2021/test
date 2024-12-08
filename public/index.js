@@ -139,10 +139,9 @@ try {
   const container = document.getElementById('postbox-container');
 
   if (!container) {
-      throw new Error("Container element not found!");
+    throw new Error("Container element not found!");
   }
 
-  const path = 'your-category-path'; // Update this with the correct category path if necessary
   console.log('Fetching posts for category:', path, "posts");
 
   const postsCollectionRef = collection(db, 'Categories', path, 'posts');
@@ -152,69 +151,53 @@ try {
   console.log('Fetched documents:', querySnapshot.size);
 
   if (querySnapshot.empty) {
-      console.log("No posts found.");
-      container.innerHTML += `<h2>No post to show here</h2>`;
+    console.log("No posts found.");
+    container.innerHTML += `<h2>No post to show here</h2>`;
   } else {
-      querySnapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          const postId = docSnap.id;
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const postId = docSnap.id;
 
-          console.log("Fetched post data:", data); // Log post data for each post
+      console.log("Fetched post data:", data); // Log post data for each post
 
-          // Add the post's HTML with the delete button
-          container.innerHTML += `
-              <div class="postbox" id="post-${postId}">
-                  <div class="post-header">
-                      <h3 class="post-title">${data.postTitle}</h3>
-                      <button class="delete-btn" data-post-id="${postId}">X</button>
-                  </div>
-                  <div class="post-content" style="display: none;">
-                      <p>${data.postContent}</p>
-                  </div>
-                  <div class="arrow" data-post-id="${postId}">▼</div>
-              </div>
-          `;
-      });
+      // Add the post's HTML with the delete button
+      container.innerHTML += `
+        <div class="postbox" id="post-${postId}">
+          <h3>${data.postTitle}</h3>
+          <p>${data.postContent}</p>
+          <button class="delete-btn" data-post-id="${postId}">X</button>
+        </div>
+      `;
+    });
   }
 
   // Event delegation for delete button click
   container.addEventListener("click", async (event) => {
-      if (event.target && event.target.classList.contains("delete-btn")) {
-          const postId = event.target.getAttribute("data-post-id");
+    if (event.target && event.target.classList.contains("delete-btn")) {
+      const postId = event.target.getAttribute("data-post-id");
 
-          console.log("Delete button clicked for post ID:", postId); // Log when button is clicked
+      console.log("Delete button clicked for post ID:", postId); // Log when button is clicked
 
-          if (confirm("Are you sure you want to delete this post?")) {
-              console.log("User confirmed deletion");
+      if (confirm("Are you sure you want to delete this post?")) {
+        console.log("User confirmed deletion"); // Log when user confirms
 
-              try {
-                  const postRef = doc(db, "Categories", path, "posts", postId);
-                  console.log("Deleting post with reference:", postRef.path);
+        try {
+          const postRef = doc(db, "Categories", path, "posts", postId);
+          console.log("Deleting post with reference:", postRef.path); // Log Firestore reference
 
-                  // Delete the document from Firestore
-                  await deleteDoc(postRef);
-                  console.log(`Post ${postId} deleted from Firestore`);
+          // Delete the document from Firestore
+          await deleteDoc(postRef);
+          console.log(`Post ${postId} deleted from Firestore`);
 
-                  // Remove the post from the DOM
-                  const postElement = document.getElementById(`post-${postId}`);
-                  postElement.remove();
-                  console.log(`Post ${postId} removed from DOM`);
-              } catch (error) {
-                  console.error("Error deleting post:", error);
-              }
-          }
+          // Remove the post from the DOM
+          const postElement = document.getElementById(`post-${postId}`);
+          postElement.remove();
+          console.log(`Post ${postId} removed from DOM`); // Log DOM removal
+        } catch (error) {
+          console.error("Error deleting post:", error); // Log errors if the deletion fails
+        }
       }
-
-      // Event delegation for the arrow click (expand/collapse)
-      if (event.target && event.target.classList.contains("arrow")) {
-          const postId = event.target.getAttribute("data-post-id");
-          const postContent = document.querySelector(`#post-${postId} .post-content`);
-          const arrow = event.target;
-
-          const isExpanded = postContent.style.display === "block";
-          postContent.style.display = isExpanded ? "none" : "block";
-          arrow.textContent = isExpanded ? "▼" : "▲";
-      }
+    }
   });
 
 } catch (error) {
