@@ -183,12 +183,13 @@ try {
 
       querySnapshot.forEach(e => {
         const data = e.data();
-
+        const postId = e.id; // Assuming each post has a unique ID
+      
         container.innerHTML += `
           <div class="postbox">
+            <button class="delete-btn" onclick="deletePost('${postId}')">X</button>
             <h3>${data.postTitle}</h3>
             <p>${data.postContent}</p>
-    
           </div>
         `;
       });
@@ -202,6 +203,20 @@ try {
 
 } catch (err) {
   console.error("ERROR IN POSTING:", err);
+}
+
+function deletePost(postId) {
+  // Implement the delete functionality
+  // For example, deleting from Firebase
+  firebase.firestore().collection('posts').doc(postId).delete()
+    .then(() => {
+      alert('Post deleted successfully');
+      // Optionally, you can remove the post from the DOM or reload the posts
+      location.reload(); // Reloads the page to reflect the changes
+    })
+    .catch((error) => {
+      console.error("Error deleting post: ", error);
+    });
 }
 
 
