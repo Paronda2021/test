@@ -1,7 +1,7 @@
 console.log(window.location.pathname);
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAvYRzyCrazIHj2-KHZ8UXuXfP2tVPIIZk",
@@ -13,6 +13,7 @@ const firebaseConfig = {
   appId: "1:799394328558:web:e72baf1faee2bcf14a68ff",
   measurementId: "G-1DMFZKG7WM"
 };
+
 
 let path = window.location.pathname; // Get the full pathname
 console.log(path);
@@ -94,8 +95,8 @@ if (loginForm) {
   } catch (err) {
     console.error(err);
   }
-    //addposts
 
+    //addposts
 
 try {
   const dynamicContainer = document.getElementById('dynamic-container');
@@ -165,39 +166,54 @@ try {
   console.log('Categories', path, "posts");
 
   const postsCollectionRef = collection(db, 'Categories', path, "posts");
-
-  try {
-    // Fetch all documents from the 'posts' subcollection
-    const querySnapshot = await getDocs(postsCollectionRef);
-    console.log('Fetched documents:', querySnapshot.size);  // Log the number of documents
   
-    // If no documents are found, handle it
+  try {
+    // Fetch all documents from the 'posts' collection
+    const querySnapshot = await getDocs(postsCollectionRef);
+    console.log('Fetched documents:', querySnapshot.size);
+  
     if (querySnapshot.empty) {
       console.log("No posts found.");
-      container.innerHTML += `<h2>No post to show here</h2>`
+      container.innerHTML += `<h2>No post to show here</h2>`;
     } else {
-      // Iterate over the documents in the collection and log their data
-      querySnapshot.forEach((e) => {
-        console.log(e.id, " => ", e.data().postTitle);
-      });
-
-      querySnapshot.forEach(e => {
-        const data = e.data();
-
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const deleteButtonId = `delete-${docSnap.id}`;
+  
+        // Add the post's HTML with the delete button
         container.innerHTML += `
-          <div class="postbox">
+          <div class="postbox" id="post-${docSnap.id}">
             <h3>${data.postTitle}</h3>
             <p>${data.postContent}</p>
-    
+            <button id="${deleteButtonId}" class="delete-btn" style="position: absolute; top: 10px; right: 10px;">Delete</button>
           </div>
         `;
+  
+        // Add event listener for the delete button
+        const deleteButton = document.getElementById(deleteButtonId);
+        deleteButton.addEventListener("click", async () => {
+          if (confirm("Are you sure you want to delete this post?")) {
+            try {
+              // Reference to the specific document
+              const postRef = doc(db, "posts", docSnap.id);
+  
+              // Delete the document from Firestore
+              await deleteDoc(postRef);
+  
+              // Remove the post from the DOM
+              const postElement = document.getElementById(`post-${docSnap.id}`);
+              postElement.remove();
+              console.log(`Post ${docSnap.id} deleted successfully.`);
+            } catch (error) {
+              console.error("Error deleting post:", error);
+            }
+          }
+        });
       });
-    
     }
-  } catch (err) {
-    console.error("Error fetching posts: ", err);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
   }
-
 
 
 } catch (err) {
