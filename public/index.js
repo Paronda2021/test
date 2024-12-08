@@ -3,7 +3,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/fireba
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-
 const firebaseConfig = {
   apiKey: "AIzaSyAvYRzyCrazIHj2-KHZ8UXuXfP2tVPIIZk",
   authDomain: "practicegeneral-ab18c.firebaseapp.com",
@@ -14,12 +13,6 @@ const firebaseConfig = {
   appId: "1:799394328558:web:e72baf1faee2bcf14a68ff",
   measurementId: "G-1DMFZKG7WM"
 };
-
-
-
-const postsCollectionRef = collection(db, "posts"); // Reference to your posts collection
-const container = document.getElementById('post-container'); // A container to display posts
-
 
 let path = window.location.pathname; // Get the full pathname
 console.log(path);
