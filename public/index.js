@@ -157,39 +157,49 @@ try {
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
       const postId = docSnap.id;
-      const deleteButtonId = `delete-${postId}`;
+
+      console.log("Fetched post data:", data); // Log post data for each post
 
       // Add the post's HTML with the delete button
       container.innerHTML += `
         <div class="postbox" id="post-${postId}">
           <h3>${data.postTitle}</h3>
           <p>${data.postContent}</p>
-          <button id="${deleteButtonId}" class="delete-btn">X</button>
+          <button class="delete-btn" data-post-id="${postId}">X</button>
         </div>
       `;
-
-      // Add event listener for the delete button
-      const deleteButton = document.getElementById(deleteButtonId);
-      deleteButton.addEventListener("click", async () => {
-        if (confirm("Are you sure you want to delete this post?")) {
-          try {
-            // Reference to the specific document in the category path
-            const postRef = doc(db, "Categories", path, "posts", postId);
-
-            // Delete the document from Firestore
-            await deleteDoc(postRef);
-
-            // Remove the post from the DOM
-            const postElement = document.getElementById(`post-${postId}`);
-            postElement.remove();
-            console.log(`Post ${postId} deleted successfully.`);
-          } catch (error) {
-            console.error("Error deleting post:", error);
-          }
-        }
-      });
     });
   }
+
+  // Event delegation for delete button click
+  container.addEventListener("click", async (event) => {
+    if (event.target && event.target.classList.contains("delete-btn")) {
+      const postId = event.target.getAttribute("data-post-id");
+
+      console.log("Delete button clicked for post ID:", postId); // Log when button is clicked
+
+      if (confirm("Are you sure you want to delete this post?")) {
+        console.log("User confirmed deletion"); // Log when user confirms
+
+        try {
+          const postRef = doc(db, "Categories", path, "posts", postId);
+          console.log("Deleting post with reference:", postRef.path); // Log Firestore reference
+
+          // Delete the document from Firestore
+          await deleteDoc(postRef);
+          console.log(`Post ${postId} deleted from Firestore`);
+
+          // Remove the post from the DOM
+          const postElement = document.getElementById(`post-${postId}`);
+          postElement.remove();
+          console.log(`Post ${postId} removed from DOM`); // Log DOM removal
+        } catch (error) {
+          console.error("Error deleting post:", error); // Log errors if the deletion fails
+        }
+      }
+    }
+  });
+
 } catch (error) {
   console.error("Error fetching posts:", error);
 }
