@@ -168,21 +168,26 @@ try {
         </div>
       `;
 
+      console.log(`Created delete button with ID: ${deleteButtonId}`);
+
       // Add event listener for the delete button
       const deleteButton = document.getElementById(deleteButtonId);
       deleteButton.addEventListener("click", async () => {
         if (confirm("Are you sure you want to delete this post?")) {
+          console.log(`Deleting post with ID: ${postId}`);
           try {
             // Reference to the specific document in the category path
             const postRef = doc(db, "Categories", path, "posts", postId);
+            console.log("Deleting document reference:", postRef.path);
 
             // Delete the document from Firestore
             await deleteDoc(postRef);
+            console.log(`Post ${postId} deleted from Firestore`);
 
             // Remove the post from the DOM
             const postElement = document.getElementById(`post-${postId}`);
             postElement.remove();
-            console.log(`Post ${postId} deleted successfully.`);
+            console.log(`Post ${postId} deleted from DOM`);
           } catch (error) {
             console.error("Error deleting post:", error);
           }
@@ -193,6 +198,7 @@ try {
 } catch (error) {
   console.error("Error fetching posts:", error);
 }
+
 
 // Fetch Categories for Homepage
 try {
