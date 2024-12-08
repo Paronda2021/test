@@ -175,55 +175,35 @@ try {
   try {
     // Fetch all documents from the 'posts' subcollection
     const querySnapshot = await getDocs(postsCollectionRef);
-    console.log('Fetched documents:', querySnapshot.size); // Log the number of documents
+    console.log('Fetched documents:', querySnapshot.size);  // Log the number of documents
   
     // If no documents are found, handle it
     if (querySnapshot.empty) {
       console.log("No posts found.");
-      container.innerHTML += `<h2>No post to show here</h2>`;
+      container.innerHTML += `<h2>No post to show here</h2>`
     } else {
       // Iterate over the documents in the collection and log their data
       querySnapshot.forEach((e) => {
         console.log(e.id, " => ", e.data().postTitle);
       });
-  
-      // Iterate over the documents to render them with a delete button
-      querySnapshot.forEach((e) => {
+
+      querySnapshot.forEach(e => {
         const data = e.data();
-  
-        // Create a unique ID for each delete button
-        const deleteButtonId = `delete-${e.id}`;
-  
-        // Add the post's HTML with the delete button
+
         container.innerHTML += `
-          <div class="postbox" id="post-${e.id}">
+          <div class="postbox">
             <h3>${data.postTitle}</h3>
             <p>${data.postContent}</p>
-            <button id="${deleteButtonId}" class="delete-btn" style="position: absolute; top: 10px; right: 10px;">Delete</button>
+    
           </div>
         `;
-  
-        // Add an event listener for the delete button
-        const deleteButton = document.getElementById(deleteButtonId);
-        deleteButton.addEventListener("click", async () => {
-          if (confirm("Are you sure you want to delete this post?")) {
-            try {
-              // Delete the document from Firestore
-              await deleteDoc(doc(postsCollectionRef, e.id));
-              // Remove the post from the DOM
-              const postElement = document.getElementById(`post-${e.id}`);
-              postElement.remove();
-              console.log(`Post ${e.id} deleted successfully.`);
-            } catch (err) {
-              console.error(`Error deleting post ${e.id}: `, err);
-            }
-          }
-        });
       });
+    
     }
   } catch (err) {
     console.error("Error fetching posts: ", err);
   }
+
 
 
 } catch (err) {
